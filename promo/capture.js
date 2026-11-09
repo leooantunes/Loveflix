@@ -1,0 +1,33 @@
+const { chromium } = require('playwright');
+const fs = require('fs');
+(async () => {
+  const A = process.argv[2];
+  const b = await chromium.launch();
+  const ctx = await b.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 3, acceptDownloads: true });
+  const p = await ctx.newPage();
+  await p.goto('http://localhost:3123'); await p.waitForTimeout(2500);
+  await p.screenshot({ path: A + '/home-empty.png' });
+  await p.fill('[aria-label="Seu nome"]', 'Ana');
+  await p.fill('[aria-label="Nome do seu amor"]', 'Leo');
+  for (const s of ['Pizza','Sushi','Hambúrguer','Tacos','Comédia romântica','Terror','Animação','Suspense','Brigadeiro','Sorvete','Petit gâteau','Churros'])
+    await p.locator(`button:has-text("+ ${s}")`).dispatchEvent('click');
+  await p.waitForTimeout(1500);
+  await p.evaluate(() => window.scrollTo(0, 0));
+  await p.waitForTimeout(500);
+  await p.screenshot({ path: A + '/bar.png', clip: { x: 0, y: 844 - 150, width: 390, height: 150 } });
+  await p.screenshot({ path: A + '/pick-view.png' });
+  await p.addStyleTag({ content: '.fixed.inset-x-0.bottom-0{display:none!important}' });
+  await p.locator('input').first().blur();
+  await p.screenshot({ path: A + '/pick-full.png', fullPage: true });
+  await p.evaluate(() => document.querySelectorAll('style').forEach(s => s.textContent.includes('display:none!important') && s.remove()));
+  await p.click('text=Gerar resultado');
+  await p.waitForSelector('text=Arquivos prontos', { timeout: 20000 });
+  await p.waitForTimeout(800);
+  const items = await p.locator('ul.mt-6 li').allInnerTexts();
+  fs.writeFileSync(A + '/result.json', JSON.stringify(items));
+  const [dl] = await Promise.all([p.waitForEvent('download'), p.click('text=Story no Instagram')]);
+  await dl.saveAs(A + '/poster.png');
+  await p.screenshot({ path: A + '/result-screen.png' });
+  console.log(items);
+  await b.close();
+})();

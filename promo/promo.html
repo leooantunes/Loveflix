@@ -1,0 +1,333 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@400;500;600;700;800&display=block" rel="stylesheet" />
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 540px; height: 960px; overflow: hidden; background: #0b0507; }
+  body { font-family: 'Outfit', sans-serif; color: #fff; }
+  #stage { position: absolute; inset: 0; overflow: hidden;
+    background: radial-gradient(120% 70% at 50% 0%, #4c0519 0%, #1a0509 45%, #0b0507 80%); }
+  .abs { position: absolute; }
+  .blob { position: absolute; border-radius: 50%; filter: blur(60px); }
+  .heart { position: absolute; color: #f43f5e; font-size: 22px; }
+  .display { font-family: 'Bebas Neue', sans-serif; letter-spacing: 1px; }
+  .shine { background: linear-gradient(90deg,#fb7185 0%,#f43f5e 25%,#fff1f2 50%,#f43f5e 75%,#fb7185 100%);
+    background-size: 200% auto; -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .scene { position: absolute; inset: 0; opacity: 0; }
+
+  /* chat */
+  .bubble { position: absolute; max-width: 340px; padding: 16px 22px; border-radius: 26px; font-size: 26px; font-weight: 600;
+    box-shadow: 0 10px 30px rgba(0,0,0,.35); white-space: nowrap; }
+  .bubble.l { left: 36px; background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.14); border-bottom-left-radius: 8px; }
+  .bubble.r { right: 36px; background: linear-gradient(135deg,#e11d48,#c026d3); border-bottom-right-radius: 8px; }
+  .chathead { position:absolute; left:0; right:0; top:120px; text-align:center; font-size:20px; color: rgba(255,255,255,.55); letter-spacing: 4px; text-transform: uppercase; font-weight:600; }
+
+  .caption { position: absolute; left: 0; right: 0; text-align: center; }
+  .step { display:inline-flex; align-items:center; gap:10px; padding: 8px 18px; border-radius: 999px; font-size: 16px; font-weight: 700;
+    letter-spacing: 3px; text-transform: uppercase; color:#fecdd3; background: rgba(244,63,94,.14); border: 1px solid rgba(244,63,94,.4); }
+  .capt { font-family: 'Bebas Neue'; font-size: 58px; line-height: .95; margin-top: 14px; }
+
+  /* phone */
+  .phone { position: absolute; width: 300px; height: 626px; left: 120px; border-radius: 48px; background: #111;
+    padding: 10px; box-shadow: 0 0 0 2px #2a2a2a, 0 40px 80px -20px rgba(225,29,72,.6); }
+  .screen { position: relative; width: 280px; height: 606px; border-radius: 38px; overflow: hidden; background:#0b0507; }
+  .notch { position:absolute; top: 10px; left: 50%; width: 90px; height: 26px; margin-left:-45px; background:#000; border-radius: 20px; z-index: 5; }
+  .chip { position: absolute; padding: 10px 18px; border-radius: 999px; font-size: 20px; font-weight: 600; white-space: nowrap;
+    background: rgba(20,8,12,.85); border: 1px solid rgba(251,113,133,.5); box-shadow: 0 10px 30px rgba(0,0,0,.5); }
+  .tap { position:absolute; width: 70px; height: 70px; border-radius: 50%; border: 4px solid rgba(255,255,255,.9); background: rgba(255,255,255,.25); }
+
+  /* slot */
+  .reelwrap { position:absolute; left: 40px; right: 40px; }
+  .reellabel { font-size: 18px; letter-spacing: 4px; font-weight: 700; color: #fda4af; text-transform: uppercase; margin-bottom: 10px; text-align:center; }
+  .reel { position: relative; height: 110px; border-radius: 24px; overflow: hidden; background: rgba(0,0,0,.6); border: 2px solid rgba(255,255,255,.12); }
+  .strip { position:absolute; left:0; right:0; top:0; }
+  .strip div { height: 110px; display:flex; align-items:center; justify-content:center; font-size: 40px; font-weight: 800; }
+  .reel::after { content:''; position:absolute; inset:0; background: linear-gradient(to bottom, rgba(0,0,0,.85), transparent 30%, transparent 70%, rgba(0,0,0,.85)); }
+
+  .pill { display:inline-flex; align-items:center; gap:8px; padding: 12px 20px; border-radius: 999px; font-size: 20px; font-weight: 700;
+    background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.2); margin: 0 5px; }
+  .cta { display:inline-block; padding: 22px 34px; border-radius: 26px; font-size: 26px; font-weight: 800;
+    background: linear-gradient(90deg,#e11d48,#f43f5e,#c026d3); box-shadow: 0 20px 60px -10px rgba(225,29,72,.9); }
+  canvas { position:absolute; inset:0; }
+  #flash { position:absolute; inset:0; background:#fff; opacity:0; pointer-events:none; }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div class="blob" id="b1" style="width:360px;height:360px;background:rgba(225,29,72,.35)"></div>
+  <div class="blob" id="b2" style="width:420px;height:420px;background:rgba(162,28,175,.3)"></div>
+  <div class="blob" id="b3" style="width:300px;height:300px;background:rgba(249,115,22,.18)"></div>
+  <div id="hearts"></div>
+
+  <!-- A: chat -->
+  <div class="scene" id="sA">
+    <div class="chathead">sexta, 20:47</div>
+    <div class="bubble l" id="c1" style="top:200px">O que vamos comer? 🍔</div>
+    <div class="bubble r" id="c2" style="top:290px">Tanto faz…</div>
+    <div class="bubble l" id="c3" style="top:380px">E o filme? 🎬</div>
+    <div class="bubble r" id="c4" style="top:470px">Tanto faz 😅</div>
+    <div class="bubble l" id="c5" style="top:560px">Sobremesa? 🍰</div>
+    <div class="bubble r" id="c6" style="top:650px; font-size:34px; font-weight:800">TANTO FAZ!!</div>
+  </div>
+
+  <!-- B: chega de tanto faz -->
+  <div class="scene" id="sB">
+    <div class="caption" style="top:270px">
+      <div class="display" id="b_chega" style="font-size:110px; line-height:.9">CHEGA DE</div>
+      <div class="display shine" id="b_tf" style="font-size:118px; line-height:.9">“TANTO FAZ”</div>
+    </div>
+    <div class="caption" id="b_logo" style="top:610px">
+      <div style="font-size:18px; letter-spacing:5px; color:#fda4af; font-weight:600">CONHEÇA O</div>
+      <div class="display" style="font-size:96px; letter-spacing:4px; color:#f43f5e; text-shadow:0 0 40px rgba(244,63,94,.7)">LOVEFLIX</div>
+    </div>
+  </div>
+
+  <!-- C: escolha -->
+  <div class="scene" id="sC">
+    <div class="caption" id="c_cap" style="top:46px">
+      <span class="step">Passo 1</span>
+      <div class="capt">Escolham até 5 opções</div>
+      <div style="font-size:20px; color:rgba(255,255,255,.7); margin-top:6px">de lanche, filme e sobremesa</div>
+    </div>
+    <div class="phone" id="phone">
+      <div class="screen">
+        <div class="notch"></div>
+        <img id="pickimg" src="assets/pick-full.png" style="position:absolute; left:0; top:0; width:280px" />
+        <img src="assets/bar.png" style="position:absolute; left:0; bottom:0; width:280px" />
+        <div class="tap" id="tap"></div>
+      </div>
+    </div>
+    <div class="chip" id="ch1">🍕 Pizza</div>
+    <div class="chip" id="ch2">🍣 Sushi</div>
+    <div class="chip" id="ch3">🎬 Suspense</div>
+    <div class="chip" id="ch4">😂 Comédia</div>
+    <div class="chip" id="ch5">🍫 Brigadeiro</div>
+    <div class="chip" id="ch6">🍦 Sorvete</div>
+  </div>
+
+  <!-- D: sorteio -->
+  <div class="scene" id="sD">
+    <div class="caption" style="top:70px">
+      <span class="step">Passo 2</span>
+      <div class="capt">Um toque e…<br/><span class="shine">o destino decide!</span></div>
+    </div>
+    <div class="reelwrap" id="r0" style="top:330px"><div class="reellabel">🍔 Lanche</div><div class="reel"><div class="strip"></div></div></div>
+    <div class="reelwrap" id="r1" style="top:510px"><div class="reellabel">🎬 Filme</div><div class="reel"><div class="strip"></div></div></div>
+    <div class="reelwrap" id="r2" style="top:690px"><div class="reellabel">🍰 Sobremesa</div><div class="reel"><div class="strip"></div></div></div>
+  </div>
+
+  <!-- E: compartilhar -->
+  <div class="scene" id="sE">
+    <div class="caption" id="e_cap" style="top:40px">
+      <span class="step">Passo 3</span>
+      <div class="capt">Compartilhem o date 💘</div>
+    </div>
+    <div class="abs" id="poster" style="left:120px; top:200px; width:300px; height:533px; border-radius:26px; overflow:hidden;
+         box-shadow: 0 30px 80px -10px rgba(225,29,72,.7)">
+      <img src="assets/poster.png" style="width:300px; height:533px; display:block" />
+    </div>
+    <div class="caption" id="e_pills" style="top:770px">
+      <span class="pill" id="p1">📄 PDF</span><span class="pill" id="p2">📸 Stories</span><span class="pill" id="p3">💬 WhatsApp</span>
+    </div>
+  </div>
+
+  <!-- F: final -->
+  <div class="scene" id="sF">
+    <div class="caption" style="top:250px">
+      <div id="f_logo" class="display" style="font-size:150px; letter-spacing:6px; color:#f43f5e; text-shadow:0 0 60px rgba(244,63,94,.8)">LOVEFLIX</div>
+      <div id="f_sub" style="font-size:30px; font-weight:600; margin-top:6px; line-height:1.25">O date perfeito,<br/><span class="shine" style="font-weight:800">sorteado pra vocês.</span></div>
+    </div>
+    <div class="caption" id="f_cta" style="top:600px">
+      <span class="cta">✨ Sorteiem o de vocês</span>
+      <div style="margin-top:22px; font-size:20px; color:rgba(255,255,255,.65)">É grátis · Lanche 🍔 Filme 🎬 Sobremesa 🍰</div>
+    </div>
+  </div>
+
+  <canvas id="confetti" width="1080" height="1920" style="width:540px;height:960px"></canvas>
+  <div id="flash"></div>
+</div>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+const seg = (t, a, b) => clamp((t - a) / (b - a));
+const outCubic = (x) => 1 - Math.pow(1 - x, 3);
+const outQuart = (x) => 1 - Math.pow(1 - x, 4);
+const inCubic = (x) => x * x * x;
+const outBack = (x, s = 1.7) => 1 + (s + 1) * Math.pow(x - 1, 3) + s * Math.pow(x - 1, 2);
+const inOut = (x) => x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;
+function rng(seed) { return () => { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; }; }
+
+// Cenas: [início, fim]
+const S = { A: [0, 4.3], B: [4.3, 7.0], C: [7.0, 11.6], D: [11.6, 15.9], E: [15.9, 19.8], F: [19.8, 24] };
+const DURATION = 24;
+function sceneAlpha(t, [a, b], fin = .35, fout = .35) {
+  return Math.min(seg(t, a, a + fin), 1 - seg(t, b - fout, b));
+}
+
+// Corações flutuantes
+const R = rng(7); const hearts = [];
+for (let i = 0; i < 16; i++) {
+  const el = document.createElement('div'); el.className = 'heart'; el.textContent = '♥';
+  $('hearts').appendChild(el);
+  hearts.push({ el, x: R() * 540, y0: R() * 1100, sp: 25 + R() * 45, s: .6 + R() * 1.1, o: .15 + R() * .3, ph: R() * 6 });
+}
+
+// Reels
+const REELS = [
+  { opts: ['Pizza', 'Sushi', 'Hambúrguer', 'Tacos'], final: 'Pizza', stop: 13.3 },
+  { opts: ['Comédia romântica', 'Terror', 'Animação', 'Suspense'], final: 'Suspense', stop: 14.0 },
+  { opts: ['Brigadeiro', 'Sorvete', 'Petit gâteau', 'Churros'], final: 'Brigadeiro', stop: 14.7 },
+];
+const RR = rng(42);
+REELS.forEach((r, i) => {
+  const strip = document.querySelector(`#r${i} .strip`);
+  const list = [];
+  for (let l = 0; l < 8 + i * 3; l++) { const sh = [...r.opts].sort(() => RR() - .5); list.push(...sh); }
+  list.push(r.final);
+  r.n = list.length;
+  strip.innerHTML = list.map((x) => `<div>${x}</div>`).join('');
+  r.el = strip; r.box = document.querySelector(`#r${i} .reel`); r.wrap = $(`r${i}`);
+  r.fontFix = list;
+});
+const SPIN_START = 12.2;
+
+// Confete
+const CONF_T = 14.75;
+const CR = rng(99); const parts = [];
+const colors = ['#f43f5e', '#fb7185', '#e879f9', '#fde68a', '#ffffff', '#c026d3'];
+for (let i = 0; i < 220; i++) {
+  const side = i % 3; // 0 centro, 1 esquerda, 2 direita
+  const x0 = side === 0 ? 540 : side === 1 ? -20 : 1100;
+  const y0 = side === 0 ? 1100 : 1500;
+  const ang = side === 0 ? (-Math.PI / 2 + (CR() - .5) * 1.8) : side === 1 ? (-Math.PI / 3 + (CR() - .5) * .9) : (-2 * Math.PI / 3 + (CR() - .5) * .9);
+  const v = 900 + CR() * 1300;
+  parts.push({ x0, y0, vx: Math.cos(ang) * v, vy: Math.sin(ang) * v, c: colors[i % colors.length],
+    w: 10 + CR() * 14, h: 6 + CR() * 10, rot: CR() * 6, vr: (CR() - .5) * 14, round: CR() < .35, delay: CR() * .15 });
+}
+const ctx = $('confetti').getContext('2d');
+function drawConfetti(t) {
+  ctx.clearRect(0, 0, 1080, 1920);
+  const dt0 = t - CONF_T;
+  if (dt0 < 0 || dt0 > 3.2) return;
+  for (const p of parts) {
+    const dt = dt0 - p.delay; if (dt < 0) continue;
+    const drag = 1 - Math.exp(-2.2 * dt);
+    const x = p.x0 + p.vx * drag / 2.2;
+    const y = p.y0 + p.vy * drag / 2.2 + 600 * dt * dt;
+    ctx.save(); ctx.globalAlpha = clamp(1 - (dt - 2.2)); ctx.translate(x, y); ctx.rotate(p.rot + p.vr * dt);
+    ctx.scale(1, Math.cos(dt * 8 + p.rot));
+    ctx.fillStyle = p.c;
+    if (p.round) { ctx.beginPath(); ctx.arc(0, 0, p.h, 0, 7); ctx.fill(); } else ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+    ctx.restore();
+  }
+}
+
+function setT(t) {
+  // fundo
+  $('b1').style.transform = `translate(${-80 + Math.sin(t * .5) * 50}px, ${40 + Math.cos(t * .4) * 60}px)`;
+  $('b2').style.transform = `translate(${260 + Math.cos(t * .35) * 50}px, ${330 + Math.sin(t * .45) * 70}px)`;
+  $('b3').style.transform = `translate(${120 + Math.sin(t * .3) * 60}px, ${720 + Math.cos(t * .5) * 40}px)`;
+  for (const h of hearts) {
+    const y = ((h.y0 - t * h.sp) % 1100 + 1100) % 1100 - 60;
+    h.el.style.transform = `translate(${h.x + Math.sin(t + h.ph) * 14}px, ${y}px) scale(${h.s}) rotate(${Math.sin(t * .8 + h.ph) * 15}deg)`;
+    h.el.style.opacity = h.o;
+  }
+  // shine
+  document.querySelectorAll('.shine').forEach((e) => e.style.backgroundPosition = `${200 - (t * 40 % 400)}% center`);
+
+  // A — chat
+  $('sA').style.opacity = sceneAlpha(t, S.A, .2, .3);
+  const times = [.3, .85, 1.4, 1.9, 2.45, 2.95];
+  times.forEach((ti, i) => {
+    const el = $('c' + (i + 1));
+    const p = seg(t, ti, ti + .35);
+    const fall = seg(t, 3.75 + i * .04, 4.3);
+    const shake = i === 5 && t > 2.95 && t < 3.7 ? Math.sin(t * 70) * 6 * (1 - seg(t, 3.3, 3.7)) : 0;
+    const sc = i === 5 ? outBack(p, 3) : outBack(p);
+    el.style.opacity = clamp(p * 3) * (1 - fall);
+    el.style.transform = `translate(${shake}px, ${(1 - outCubic(p)) * 30 + inCubic(fall) * 500}px) scale(${.6 + .4 * sc}) rotate(${fall * (i % 2 ? 20 : -20)}deg)`;
+    el.style.transformOrigin = i % 2 ? 'right bottom' : 'left bottom';
+  });
+
+  // B — chega de tanto faz
+  $('sB').style.opacity = sceneAlpha(t, S.B, .05, .35);
+  const p1 = seg(t, 4.3, 4.6), p2 = seg(t, 4.65, 4.95);
+  $('b_chega').style.transform = `scale(${2.4 - 1.4 * outCubic(p1)})`; $('b_chega').style.opacity = p1;
+  $('b_tf').style.transform = `scale(${2.6 - 1.6 * outCubic(p2)}) rotate(${(1 - p2) * -6}deg)`; $('b_tf').style.opacity = p2;
+  const p3 = seg(t, 5.5, 6.0);
+  $('b_logo').style.opacity = p3; $('b_logo').style.transform = `translateY(${(1 - outBack(p3)) * 60}px)`;
+  $('flash').style.opacity = Math.max(.55 * (1 - seg(t, 4.3, 4.6)) * (t >= 4.3 ? 1 : 0), .5 * (1 - seg(t, 4.65, 4.95)) * (t >= 4.65 ? 1 : 0),
+    .45 * (1 - seg(t, CONF_T, CONF_T + .35)) * (t >= CONF_T ? 1 : 0));
+
+  // C — escolha
+  $('sC').style.opacity = sceneAlpha(t, S.C, .35, .35);
+  const pc = seg(t, 7.0, 7.7);
+  $('phone').style.top = `${300 + (1 - outCubic(pc)) * 500}px`;
+  $('phone').style.transform = `rotate(${(1 - outCubic(pc)) * 8}deg) scale(${1 - .02 * seg(t, 10.9, 11.0) + .02 * seg(t, 11.0, 11.15)})`;
+  $('c_cap').style.opacity = seg(t, 7.1, 7.5); $('c_cap').style.transform = `translateY(${(1 - outCubic(seg(t, 7.1, 7.5))) * -30}px)`;
+  const scroll = inOut(seg(t, 8.0, 9.6)) * 300 + inOut(seg(t, 9.8, 10.6)) * 420;
+  $('pickimg').style.transform = `translateY(${-scroll}px)`;
+  const chips = [[18, 300, 7.6], [390, 380, 7.85], [10, 470, 8.4], [385, 560, 8.7], [20, 680, 9.6], [395, 760, 9.9]];
+  chips.forEach(([x, y, ti], i) => {
+    const el = $('ch' + (i + 1)); const p = seg(t, ti, ti + .45);
+    el.style.left = x + 'px'; el.style.top = y + Math.sin(t * 2 + i) * 6 + 'px';
+    el.style.opacity = clamp(p * 2); el.style.transform = `scale(${outBack(p, 2.5)}) rotate(${(i % 2 ? 6 : -6)}deg)`;
+  });
+  // toque no botão "Gerar resultado"
+  const tp = seg(t, 10.8, 11.35);
+  $('tap').style.left = '170px'; $('tap').style.top = '576px';
+  $('tap').style.opacity = t > 10.7 ? (tp < .5 ? 1 : 1 - (tp - .5) * 2) : 0;
+  $('tap').style.transform = `translate(-50%, -50%) scale(${tp < .3 ? 1.4 - tp : .9 + (tp - .3) * 1.6})`;
+
+  // D — sorteio
+  $('sD').style.opacity = sceneAlpha(t, S.D, .3, .35);
+  REELS.forEach((r, i) => {
+    const appear = seg(t, 11.7 + i * .1, 12.1 + i * .1);
+    r.wrap.style.opacity = appear; r.wrap.style.transform = `translateY(${(1 - outCubic(appear)) * 40}px)`;
+    const p = seg(t, SPIN_START, r.stop);
+    const y = -(r.n - 1) * 110 * outQuart(p);
+    r.el.style.transform = `translateY(${y}px)`;
+    const stopped = t >= r.stop;
+    const g = stopped ? 1 - seg(t, r.stop + .3, r.stop + 1.2) * .5 : 0;
+    r.box.style.borderColor = stopped ? '#fb7185' : 'rgba(255,255,255,.12)';
+    r.box.style.boxShadow = stopped ? `0 0 ${50 * g}px rgba(244,63,94,${.9 * g})` : 'none';
+    r.box.style.transform = `scale(${stopped ? 1 + .06 * (1 - seg(t, r.stop, r.stop + .25)) : 1})`;
+    r.el.style.filter = !stopped && p > 0 ? `blur(${3 * (1 - outQuart(p))}px)` : 'none';
+  });
+
+  // E — compartilhar
+  $('sE').style.opacity = sceneAlpha(t, S.E, .3, .35);
+  const pe = seg(t, 15.95, 16.8);
+  $('poster').style.transform = `perspective(1200px) rotateY(${(1 - outBack(pe, 1.2)) * 90}deg) scale(${.7 + .3 * outCubic(pe)}) translateY(${Math.sin(t * 2) * 5}px)`;
+  $('poster').style.opacity = clamp(pe * 3);
+  $('e_cap').style.opacity = seg(t, 16.0, 16.4);
+  ['p1', 'p2', 'p3'].forEach((id, i) => {
+    const p = seg(t, 17.0 + i * .25, 17.45 + i * .25);
+    $(id).style.opacity = p; $(id).style.display = 'inline-flex';
+    $(id).style.transform = `translateY(${(1 - outBack(p, 2.5)) * 30}px)`;
+  });
+
+  // F — final
+  $('sF').style.opacity = sceneAlpha(t, S.F, .4, .01);
+  const pf = seg(t, 19.9, 20.5);
+  $('f_logo').style.transform = `scale(${1.6 - .6 * outBack(pf, 1.5)})`; $('f_logo').style.opacity = pf;
+  const ps = seg(t, 20.5, 21.0);
+  $('f_sub').style.opacity = ps; $('f_sub').style.transform = `translateY(${(1 - outCubic(ps)) * 20}px)`;
+  const pcta = seg(t, 21.1, 21.6);
+  $('f_cta').style.opacity = pcta;
+  $('f_cta').style.transform = `scale(${(.6 + .4 * outBack(pcta, 2)) * (1 + (t > 21.6 ? Math.sin((t - 21.6) * 6) * .03 : 0))})`;
+  // fade final
+  $('stage').style.filter = `brightness(${1 - seg(t, 23.4, 24) })`;
+
+  drawConfetti(t);
+}
+window.DURATION = DURATION;
+window.setT = setT;
+setT(0);
+</script>
+</body>
+</html>

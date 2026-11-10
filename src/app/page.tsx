@@ -178,7 +178,7 @@ export default function Home() {
       {/* Na tela de escolhas, o espaço inferior evita que a barra fixa cubra o texto */}
       <footer
         className={`mt-auto px-4 pt-2 text-center text-xs text-white/40 ${
-          stage === "result" ? "pb-6" : "pb-40 sm:pb-28"
+          stage === "result" ? "pb-6" : "pb-56 sm:pb-28"
         }`}
       >
         © 2026 Léo Antunes Dev. Todos os direitos reservados.
@@ -188,11 +188,11 @@ export default function Home() {
       <AnimatePresence>
         {stage === "pick" && (
           <motion.div
-            initial={{ y: 120 }}
+            initial={{ y: 220 }}
             animate={{ y: 0 }}
-            exit={{ y: 120 }}
+            exit={{ y: 220 }}
             transition={{ type: "spring", stiffness: 200, damping: 24, delay: 0.4 }}
-            className="fixed inset-x-0 bottom-0 z-40 border-t border-white/10 bg-black/60 px-4 py-4 backdrop-blur-xl"
+            className="fixed inset-x-0 bottom-0 z-40 border-t border-white/10 bg-black/60 px-4 pt-4 pb-[calc(4.5rem+env(safe-area-inset-bottom))] backdrop-blur-xl sm:pb-[calc(1rem+env(safe-area-inset-bottom))]"
           >
             <div className="mx-auto flex max-w-6xl flex-col items-center gap-3 sm:flex-row sm:justify-between">
               <p className="text-center text-sm text-white/60 sm:text-left">

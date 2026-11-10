@@ -89,7 +89,7 @@ export default function Home() {
           <motion.div
             key="pick"
             exit={{ opacity: 0, y: -20 }}
-            className="mx-auto flex w-full max-w-6xl flex-1 flex-col px-4 pb-36 sm:px-8"
+            className="mx-auto flex w-full max-w-6xl flex-1 flex-col px-4 pb-8 sm:px-8"
           >
             <section className="mx-auto mt-4 w-full max-w-2xl text-center sm:mt-8">
               <motion.p
@@ -174,6 +174,15 @@ export default function Home() {
           />
         )}
       </AnimatePresence>
+
+      {/* Na tela de escolhas, o espaço inferior evita que a barra fixa cubra o texto */}
+      <footer
+        className={`mt-auto px-4 pt-2 text-center text-xs text-white/40 ${
+          stage === "result" ? "pb-6" : "pb-40 sm:pb-28"
+        }`}
+      >
+        © 2026 Léo Antunes Dev. Todos os direitos reservados.
+      </footer>
 
       {/* Barra fixa do botão de gerar */}
       <AnimatePresence>
